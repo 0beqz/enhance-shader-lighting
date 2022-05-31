@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>three.js enhance-shader-lighting</title>
+  </head>
+
+  <body style="background-color: black">
+    <canvas class="webgl" style="display: none"></canvas>
+    <div id="loading" style="display: none">0%</div>
+    <div id="grid" style="display: none">
+      <div
+        onclick="location.href = 'http://localhost:8080/?scene=gym'"
+        style="
+          background: url('/screenshots/gym.png');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        "
+      >
+        <div class="text">Gym</div>
+      </div>
+      <div
+        onclick="location.href = 'http://localhost:8080/?scene=backrooms'"
+        style="
+          background: url('/screenshots/backrooms.png');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        "
+      >
+        <div class="text">Backrooms</div>
+      </div>
+      <div
+        onclick="location.href = 'http://localhost:8080/?scene=desert'"
+        style="
+          background: url('/screenshots/desert.png');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        "
+      >
+        <div class="text">Cartoony Desert</div>
+      </div>
+      <div
+        onclick="location.href = 'http://localhost:8080/?scene=general_light_test'"
+        style="
+          background: url('/screenshots/general_light_test.png');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        "
+      >
+        <div class="text">General Light<br />Test</div>
+      </div>
+    </div>
+  </body>
+</html>

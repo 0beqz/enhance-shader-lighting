@@ -1,0 +1,22 @@
+.DS_Store
+node_modules
+/dist
+.cache
+
+static/car
+static/crash_dummy
+static/park_parking_2k.hdr
+static/skate_park_2k.hdr
+static/weapon.glb
+
+src/threejs-sandbox
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+static/
