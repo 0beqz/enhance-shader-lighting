@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+  <title>three.js enhance-shader-lighting</title>
+</head>
+
+<body style="background-color: black">
+  <canvas class="webgl" style="display: none"></canvas>
+  <div id="loading" style="display: none">0%</div>
+  <div id="grid" style="display: none">
+    <div onclick='location.href = `${window.location.href.split("?")[0]}?scene=gym`' style="
+          background: url('/screenshots/gym.webp');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+          grid-column-start: 1;
+          grid-column-end: 3;
+        ">
+      <div class="text">Gym</div>
+    </div>
+    <div onclick='location.href = `${window.location.href.split("?")[0]}?scene=backrooms`' style="
+          background: url('/screenshots/backrooms.png');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        ">
+      <div class="text">Backrooms</div>
+    </div>
+    <div onclick='location.href = `${window.location.href.split("?")[0]}?scene=desert`' style="
+          background: url('/screenshots/desert.webp');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        ">
+      <div class="text">Cartoony Desert</div>
+    </div>
+  </div>
+
+  <script type="module" src="/index.js"></script>
+
+  <!-- Web3D Survey: https://web3dsurvey.com/ - https://twitter.com/benhouston3d/status/1636735382434791425 -->
+  <script defer src="https://web3dsurvey.com/collector.js"></script>
+</body>
+
+</html>
