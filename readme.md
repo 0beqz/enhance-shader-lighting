@@ -25,6 +25,8 @@ import { enhanceShaderLighting } from "enhance-shader-lighting"
 material.onBeforeCompile = shader => enhanceShaderLighting(shader, options)
 ```
 
+**NOTE**: three.js version 0.151.0 (released: 03.30.2023) isn't supported yet, it will be supported soon
+
 ## Parameters of `enhanceShaderLighting(shader, ?options)`
 
 `shader`: material's shader, acquired through Material.onBeforeCompile
