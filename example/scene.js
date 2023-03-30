@@ -28,6 +28,8 @@ import { detectSupport, initLowResMaterial } from "./Utils"
 let demo
 let stats
 
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
 export const initScene = name => {
 	switch (name) {
 		case "gym":
@@ -175,7 +177,6 @@ export const initScene = name => {
 	const bloom1Effect = new BloomEffect(bloom1Options)
 	const bloom2Effect = new BloomEffect(bloom2Options)
 
-	const lutPass = null
 	let lutEffect = null
 	let webgl1SmaaEffect = null
 
@@ -237,7 +238,7 @@ export const initScene = name => {
 		const traaEffect = new TRAAEffect(scene, camera, velocityDepthNormalPass)
 
 		// Motion Blur
-		const motionBlurEffect = new MotionBlurEffect(velocityDepthNormalPass)
+		// const motionBlurEffect = new MotionBlurEffect(velocityDepthNormalPass);
 
 		const effects = [bloom1Effect, hueSaturationEffect, vignetteEffect]
 
@@ -261,19 +262,22 @@ export const initScene = name => {
 			get: () => composer.passes.indexOf(lensDistortionPass) === composer.passes.length - 1
 		})
 
-		if (demo.settings.compressionPass === true) compressionPass = new CompressionPass()
+		if (demo.settings.compressionPass === true && !isMobile) compressionPass = new CompressionPass()
 
-		const mainEffects = [gammaCorrectionEffect, webgl1SmaaEffect, bloom2Effect].filter(effect => !!effect)
+		const mainEffects = [gammaCorrectionEffect, webgl1SmaaEffect].filter(effect => !!effect)
+
+		if (!isMobile) mainEffects.unshift(traaEffect)
+		if (!isMobile) mainEffects.push(bloom2Effect)
 
 		if (demo.settings["color lut"] === true) effects.push(lutEffect)
 
-		composer.addPass(new EffectPass(camera, traaEffect, ...mainEffects, ...effects, lutEffect))
+		composer.addPass(new EffectPass(camera, ...mainEffects, ...effects, lutEffect))
 
 		// composer.addPass(new EffectPass(camera, motionBlurEffect));
-		composer.addPass(lensDistortionPass)
+		if (!isMobile) composer.addPass(lensDistortionPass)
 
 		const secondLast = composer.passes.length - 1
-		if (demo.settings.compressionPass === true) compressionPass.addToComposer(composer, secondLast)
+		if (demo.settings.compressionPass === true && !isMobile) compressionPass.addToComposer(composer, secondLast)
 	})
 
 	const anisotropy = renderer.capabilities.getMaxAnisotropy()
@@ -390,91 +394,95 @@ export const initScene = name => {
 				if (c.material.aoMap) c.material.aoMap.anisotropy = anisotropy
 
 				if (c.name === demo.reflectiveFloorName) {
-					const options = demo.reflectiveGroundOptions
-					const meshReflectorMaterial = new MeshReflectorMaterial(renderer, camera, scene, c, options)
+					if (isMobile) {
+						c.material.envMapIntensity = 10
+					} else {
+						const options = demo.reflectiveGroundOptions
+						const meshReflectorMaterial = new MeshReflectorMaterial(renderer, camera, scene, c, options)
 
-					meshReflectorMaterial.onBeforeRenderReflections = () => {
-						if (skyMesh) skyMesh.material.color.setScalar(5)
+						meshReflectorMaterial.onBeforeRenderReflections = () => {
+							if (skyMesh) skyMesh.material.color.setScalar(5)
 
-						if (!reflectionOptions.useLowResMeshes) return
+							if (!reflectionOptions.useLowResMeshes) return
 
-						for (const reflectionHideObject of demo.reflectionHideObjects) {
-							reflectionHideObject.visible = false
+							for (const reflectionHideObject of demo.reflectionHideObjects) {
+								reflectionHideObject.visible = false
+							}
+
+							for (const mesh of sceneMeshes) {
+								if (mesh.visible && mesh.userData.lowResMaterial) mesh.material = mesh.userData.lowResMaterial
+							}
 						}
 
-						for (const mesh of sceneMeshes) {
-							if (mesh.visible && mesh.userData.lowResMaterial) mesh.material = mesh.userData.lowResMaterial
+						meshReflectorMaterial.onAfterRenderReflections = () => {
+							if (skyMesh) skyMesh.material.visible = true
+							if (skyMesh) skyMesh.material.color.setScalar(1)
+
+							if (!reflectionOptions.useLowResMeshes) return
+
+							for (const reflectionHideObject of demo.reflectionHideObjects) {
+								reflectionHideObject.visible = true
+							}
+
+							for (const mesh of sceneMeshes) {
+								if (mesh.visible && mesh.userData.lowResMaterial)
+									mesh.material = generalParams["enhanceShaderLighting"]
+										? mesh.enhanceShaderLightingMaterial
+										: mesh.defaultMaterial
+							}
 						}
-					}
 
-					meshReflectorMaterial.onAfterRenderReflections = () => {
-						if (skyMesh) skyMesh.material.visible = true
-						if (skyMesh) skyMesh.material.color.setScalar(1)
+						c.userData.meshStandardMaterial = c.material
+						const mat = c.userData.meshStandardMaterial
 
-						if (!reflectionOptions.useLowResMeshes) return
+						c.material = meshReflectorMaterial
+						c.material.setValues({
+							map: mat.map,
+							normalMap: mat.normalMap,
+							aoMap: mat.aoMap,
+							lightMap: mat.lightMap,
+							roughnessMap: mat.roughnessMap,
+							metalness: mat.metalness,
+							roughness: mat.roughness,
+							envMapIntensity: mat.envMapIntensity,
+							normalScale: mat.normalScale,
+							userData: { noValueOverride: true }
+						})
 
-						for (const reflectionHideObject of demo.reflectionHideObjects) {
-							reflectionHideObject.visible = true
-						}
+						c.userData.meshReflectorMaterial = c.material
 
-						for (const mesh of sceneMeshes) {
-							if (mesh.visible && mesh.userData.lowResMaterial)
-								mesh.material = generalParams["enhanceShaderLighting"]
-									? mesh.enhanceShaderLightingMaterial
-									: mesh.defaultMaterial
-						}
-					}
+						const onBeforeCompile = c.material.onBeforeCompile.bind(c.material)
 
-					c.userData.meshStandardMaterial = c.material
-					const mat = c.userData.meshStandardMaterial
+						c.material.onBeforeCompile = (shader, ...args) => {
+							// useBoxProjectedEnvMap(shader, demo.envMapPos, demo.envMapSize);
+							onBeforeCompile(shader, ...args)
 
-					c.material = meshReflectorMaterial
-					c.material.setValues({
-						map: mat.map,
-						normalMap: mat.normalMap,
-						aoMap: mat.aoMap,
-						lightMap: mat.lightMap,
-						roughnessMap: mat.roughnessMap,
-						metalness: mat.metalness,
-						roughness: mat.roughness,
-						envMapIntensity: mat.envMapIntensity,
-						normalScale: mat.normalScale,
-						userData: { noValueOverride: true }
-					})
-
-					c.userData.meshReflectorMaterial = c.material
-
-					const onBeforeCompile = c.material.onBeforeCompile.bind(c.material)
-
-					c.material.onBeforeCompile = (shader, ...args) => {
-						// useBoxProjectedEnvMap(shader, demo.envMapPos, demo.envMapSize);
-						onBeforeCompile(shader, ...args)
-
-						shader.fragmentShader = shader.fragmentShader
-							.replace(
-								"#include <roughnessmap_fragment>",
-								THREE.ShaderChunk.roughnessmap_fragment.replaceAll(
-									"texture2D( roughnessMap, vUv )",
-									"texture2D( roughnessMap, vUv * 5. )"
+							shader.fragmentShader = shader.fragmentShader
+								.replace(
+									"#include <roughnessmap_fragment>",
+									THREE.ShaderChunk.roughnessmap_fragment.replaceAll(
+										"texture2D( roughnessMap, vUv )",
+										"texture2D( roughnessMap, vUv * 5. )"
+									)
 								)
-							)
-							.replace(
-								"#include <normal_fragment_maps>",
-								THREE.ShaderChunk.normal_fragment_maps.replaceAll(
-									"texture2D( normalMap, vUv )",
-									"texture2D( normalMap, vUv * 5. )"
+								.replace(
+									"#include <normal_fragment_maps>",
+									THREE.ShaderChunk.normal_fragment_maps.replaceAll(
+										"texture2D( normalMap, vUv )",
+										"texture2D( normalMap, vUv * 5. )"
+									)
 								)
-							)
-					}
+						}
 
-					const onBeforeCompile2 = mat.onBeforeCompile
-					mat.onBeforeCompile = (shader, ...args) => {
-						enhanceShaderLighting(shader, enhanceShaderLightingOptions)
-						onBeforeCompile2(shader, ...args)
-					}
+						const onBeforeCompile2 = mat.onBeforeCompile
+						mat.onBeforeCompile = (shader, ...args) => {
+							enhanceShaderLighting(shader, enhanceShaderLightingOptions)
+							onBeforeCompile2(shader, ...args)
+						}
 
-					mat.needsUpdate = true
-					mats.add(mat)
+						mat.needsUpdate = true
+						mats.add(mat)
+					}
 				}
 
 				if (!(c.material instanceof MeshReflectorMaterial)) {
@@ -488,6 +496,8 @@ export const initScene = name => {
 					enhanceShaderLighting(shader, enhanceShaderLightingOptions)
 
 					onBeforeCompile(shader, ...args)
+
+					syncGui()
 				}
 
 				c.material.needsUpdate = true
@@ -628,9 +638,14 @@ export const initScene = name => {
 					if (property in uniforms) {
 						uniforms[property].value = enhanceShaderLightingParams[property]
 
-						// if (demo instanceof GymDemo && property === "smoothingPower" && mat.name === demo.reflectiveFloorName) uniforms[property].value = 0.975
-						// if (mat.name === demo.reflectiveFloorName) uniforms[property].value = 0.08
-						// if (demo instanceof GymDemo && property === "envPower" && mat.name === demo.reflectiveFloorName) uniforms[property].value = 20
+						if (
+							isMobile &&
+							demo instanceof GymDemo &&
+							property === "sunIntensity" &&
+							mat.name === demo.reflectiveFloorName
+						) {
+							uniforms[property].value = 1
+						}
 					}
 				}
 
@@ -784,6 +799,8 @@ export const initScene = name => {
 		gui.width = 300
 
 		guiElem = document.querySelector(".dg.ac")
+
+		if (isMobile) guiElem.style.display = "none"
 
 		generalParams = {
 			"enhanceShaderLighting": true,

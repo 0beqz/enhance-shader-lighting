@@ -1,7 +1,7 @@
 # enhanceShaderLighting - more realism in three.js
 
-[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/gym.webp">](https://enhance-shader-lighting.vercel.app/)
-[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/desert.webp">](https://enhance-shader-lighting.vercel.app/)
+[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/gym.webp">](https://enhance-shader-lighting.vercel.app/?scene=gym)
+[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/desert.webp">](https://enhance-shader-lighting.vercel.app/?scene=desert)
 <br/>
 
 ## Idea
@@ -112,6 +112,16 @@ tweak all sorts of lighting in three.js.
 ## Note
 
 This implementation is purely arbritrary and doesn't follow any articles what so ever. Everything was implemented based on how well the scene was perceived with it and how the scene looks compared to its rendered Blender reference.
+
+## Sponsoring
+
+If the project is useful for you and you'd like to sponsor my work:
+
+[GitHub Sponsors](https://github.com/sponsors/0beqz)
+
+If you'd like, you could also buy me a coffee:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/0beqz)
 
 ## Credits
 
