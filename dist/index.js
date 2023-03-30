@@ -1,4 +1,4 @@
-﻿import * as THREE from "three"
+import * as THREE from "three"
 
 const shaderFunctions = /* glsl */ `
 // source: https://timseverien.com/posts/2020-06-19-colour-correction-with-webgl/
@@ -35,7 +35,6 @@ vec3 rgb2hsv(vec3 rgb) {
     return hsv;
 }
 `
-
 const aoCode = /* glsl */ `
 float aoMapClr = 1.;
 
@@ -57,7 +56,6 @@ if(aoMapGamma != 1.) aoMapClr = pow(aoMapClr, 1. / aoMapGamma);
 // clamp
 aoMapClr = min(1., aoMapClr);
 `
-
 const envBasicCode = /* glsl */ `
 envMapColor.rgb *= aoMapClr;
 
@@ -130,7 +128,6 @@ if(sunIntensity != 0.){
 
 return env;
 `
-
 const map_fragment = THREE.ShaderChunk.map_fragment.replace(
 	"diffuseColor *= sampledDiffuseColor;",
 	/* glsl */ `
@@ -181,7 +178,6 @@ const map_fragment = THREE.ShaderChunk.map_fragment.replace(
     diffuseColor *= lightnessFactor * sampledDiffuseColor * vec4(lightMapClr, 1.);
     `
 )
-
 const lights_pars_begin = THREE.ShaderChunk.lights_pars_begin.replace(
 	"vec3 irradiance = ambientLightColor;",
 	/* glsl */ `
@@ -194,29 +190,23 @@ const lights_pars_begin = THREE.ShaderChunk.lights_pars_begin.replace(
         1. - aoMapClr
     );`
 )
-
 const lights_fragment_maps = THREE.ShaderChunk.lights_fragment_maps.replace("USE_LIGHTMAP", "false")
 const lightmap_fragment = THREE.ShaderChunk.lightmap_fragment.replace("USE_LIGHTMAP", "false")
-
 const toFloat32 = number => {
 	let float32 = Math.fround(number).toString()
 	if (!float32.includes(".")) float32 += "."
-
 	return float32
 }
-
 const toVec3 = color => {
 	return "vec3(" + toFloat32(color.r) + ", " + toFloat32(color.g) + ", " + toFloat32(color.b) + ")"
 }
-
-export function enhanceShaderLighting(
+function enhanceShaderLighting(
 	shader,
 	{
 		aoColor = new THREE.Color(0x000000),
 		hemisphereColor = new THREE.Color(0xffffff),
 		irradianceColor = new THREE.Color(0xffffff),
 		radianceColor = new THREE.Color(0xffffff),
-
 		aoPower = 1,
 		aoSmoothing = 0,
 		aoMapGamma = 1,
@@ -230,16 +220,12 @@ export function enhanceShaderLighting(
 		smoothingPower = 0.25,
 		irradianceIntensity = Math.PI,
 		radianceIntensity = 1,
-
 		hardcodeValues = false
 	} = {}
 ) {
 	if (shader.defines && shader.fragmentShader.includes("#define ENHANCE_SHADER_LIGHTING")) return
-
 	if (shader.defines === undefined) shader.defines = {}
-
 	shader.defines.ENHANCE_SHADER_LIGHTING = ""
-
 	if (hardcodeValues) {
 		shader.fragmentShader = shader.fragmentShader.replace(
 			"uniform float opacity;",
@@ -267,26 +253,57 @@ export function enhanceShaderLighting(
             `
 		)
 	} else {
-		shader.uniforms.aoColor = { value: aoColor }
-		shader.uniforms.hemisphereColor = { value: hemisphereColor }
-		shader.uniforms.irradianceColor = { value: irradianceColor }
-		shader.uniforms.radianceColor = { value: radianceColor }
-
-		shader.uniforms.aoPower = { value: aoPower }
-		shader.uniforms.aoSmoothing = { value: aoSmoothing }
-		shader.uniforms.lightMapGamma = { value: lightMapGamma }
-		shader.uniforms.lightMapSaturation = { value: lightMapSaturation }
-		shader.uniforms.aoMapGamma = { value: aoMapGamma }
-		shader.uniforms.envPower = { value: envPower }
-		shader.uniforms.smoothingPower = { value: smoothingPower }
-		shader.uniforms.roughnessPower = { value: roughnessPower }
-		shader.uniforms.sunIntensity = { value: sunIntensity }
-		shader.uniforms.mapContrast = { value: mapContrast }
-		shader.uniforms.lightMapContrast = { value: lightMapContrast }
-
-		shader.uniforms.irradianceIntensity = { value: irradianceIntensity }
-		shader.uniforms.radianceIntensity = { value: radianceIntensity }
-
+		shader.uniforms.aoColor = {
+			value: aoColor
+		}
+		shader.uniforms.hemisphereColor = {
+			value: hemisphereColor
+		}
+		shader.uniforms.irradianceColor = {
+			value: irradianceColor
+		}
+		shader.uniforms.radianceColor = {
+			value: radianceColor
+		}
+		shader.uniforms.aoPower = {
+			value: aoPower
+		}
+		shader.uniforms.aoSmoothing = {
+			value: aoSmoothing
+		}
+		shader.uniforms.lightMapGamma = {
+			value: lightMapGamma
+		}
+		shader.uniforms.lightMapSaturation = {
+			value: lightMapSaturation
+		}
+		shader.uniforms.aoMapGamma = {
+			value: aoMapGamma
+		}
+		shader.uniforms.envPower = {
+			value: envPower
+		}
+		shader.uniforms.smoothingPower = {
+			value: smoothingPower
+		}
+		shader.uniforms.roughnessPower = {
+			value: roughnessPower
+		}
+		shader.uniforms.sunIntensity = {
+			value: sunIntensity
+		}
+		shader.uniforms.mapContrast = {
+			value: mapContrast
+		}
+		shader.uniforms.lightMapContrast = {
+			value: lightMapContrast
+		}
+		shader.uniforms.irradianceIntensity = {
+			value: irradianceIntensity
+		}
+		shader.uniforms.radianceIntensity = {
+			value: radianceIntensity
+		}
 		shader.fragmentShader = shader.fragmentShader.replace(
 			"uniform float opacity;",
 			/* glsl */ `
@@ -313,7 +330,6 @@ export function enhanceShaderLighting(
             `
 		)
 	}
-
 	shader.fragmentShader = shader.fragmentShader
 		.replace(
 			"uniform float opacity;",
@@ -371,3 +387,5 @@ export function enhanceShaderLighting(
             `
 		)
 }
+
+export { enhanceShaderLighting }

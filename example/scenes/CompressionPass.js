@@ -5,28 +5,27 @@ import * as POSTPROCESSING from "postprocessing"
 import * as THREE from "three"
 
 export class CompressionPass {
-    compressionPass;
-    compressionPass2;
+	compressionPass
+	compressionPass2
 
-    constructor() {
-        const SetupCompressionShader = {
-            tmpVec2: new THREE.Vector2(),
-            defines: {
-            },
+	constructor() {
+		const SetupCompressionShader = {
+			tmpVec2: new THREE.Vector2(),
+			defines: {},
 
-            uniforms: {
-                tDiffuse: { value: null },
-                iResolution: {
-                    get value() {
-                        return SetupCompressionShader.tmpVec2.set(window.innerWidth, window.innerHeight)
-                    }
-                },
-                intensity: {
-                    value: 0.5
-                }
-            },
+			uniforms: {
+				tDiffuse: { value: null },
+				iResolution: {
+					get value() {
+						return SetupCompressionShader.tmpVec2.set(window.innerWidth, window.innerHeight)
+					}
+				},
+				intensity: {
+					value: 0.5
+				}
+			},
 
-            vertexShader: /* glsl */`
+			vertexShader: /* glsl */ `
         
                 varying vec2 vUv;
                 varying vec3 viewDir;
@@ -41,7 +40,7 @@ export class CompressionPass {
         
             `,
 
-            fragmentShader: /* glsl */`
+			fragmentShader: /* glsl */ `
                 #define pi 2.*asin(1.)
         
                 uniform sampler2D tDiffuse;
@@ -91,19 +90,17 @@ export class CompressionPass {
                     
                 }
         
-            `,
+            `
+		}
 
-        };
+		const CompositeCompressionShader = {
+			defines: {},
 
-        const CompositeCompressionShader = {
-            defines: {
-            },
+			uniforms: {
+				tDiffuse: { value: null }
+			},
 
-            uniforms: {
-                tDiffuse: { value: null },
-            },
-
-            vertexShader: /* glsl */`
+			vertexShader: /* glsl */ `
         
                 varying vec2 vUv;
                 varying vec3 viewDir;
@@ -118,7 +115,7 @@ export class CompressionPass {
         
             `,
 
-            fragmentShader: /* glsl */`
+			fragmentShader: /* glsl */ `
                 #define pi 2.*asin(1.)
         
                 uniform sampler2D tDiffuse;
@@ -154,41 +151,40 @@ export class CompressionPass {
                     gl_FragColor.xyz = toRGB(IDCT8x8(8.*floor(gl_FragCoord.xy/8.),uv)/256.+.5);
                 }
         
-            `,
+            `
+		}
 
-        };
+		const compressionMaterial = new THREE.ShaderMaterial()
+		Object.assign(compressionMaterial, SetupCompressionShader)
 
-        let compressionMaterial = new THREE.ShaderMaterial();
-        Object.assign(compressionMaterial, SetupCompressionShader);
+		const compressionPass = new POSTPROCESSING.ShaderPass(compressionMaterial)
+		const compressionPassRender = compressionPass.render
+		compressionPass.render = (renderer, inputBuffer, ...args) => {
+			compressionMaterial.uniforms.tDiffuse.value = inputBuffer.texture
+			compressionPassRender.call(compressionPass, renderer, inputBuffer, ...args)
+		}
 
-        const compressionPass = new POSTPROCESSING.ShaderPass(compressionMaterial);
-        const compressionPassRender = compressionPass.render;
-        compressionPass.render = (renderer, inputBuffer, ...args) => {
-            compressionMaterial.uniforms.tDiffuse.value = inputBuffer.texture;
-            compressionPassRender.call(compressionPass, renderer, inputBuffer, ...args)
-        };
+		const compressionMaterial2 = new THREE.ShaderMaterial()
+		Object.assign(compressionMaterial2, CompositeCompressionShader)
 
-        let compressionMaterial2 = new THREE.ShaderMaterial();
-        Object.assign(compressionMaterial2, CompositeCompressionShader);
+		const compressionPass2 = new POSTPROCESSING.ShaderPass(compressionMaterial2)
+		const compressionPassRender2 = compressionPass2.render
+		compressionPass2.render = (renderer, inputBuffer, ...args) => {
+			compressionMaterial2.uniforms.tDiffuse.value = inputBuffer.texture
+			compressionPassRender2.call(compressionPass2, renderer, inputBuffer, ...args)
+		}
 
-        const compressionPass2 = new POSTPROCESSING.ShaderPass(compressionMaterial2);
-        const compressionPassRender2 = compressionPass2.render;
-        compressionPass2.render = (renderer, inputBuffer, ...args) => {
-            compressionMaterial2.uniforms.tDiffuse.value = inputBuffer.texture;
-            compressionPassRender2.call(compressionPass2, renderer, inputBuffer, ...args)
-        };
+		this.compressionPass = compressionPass
+		this.compressionPass2 = compressionPass2
+	}
 
-        this.compressionPass = compressionPass
-        this.compressionPass2 = compressionPass2
-    }
+	addToComposer(composer, index) {
+		composer.addPass(this.compressionPass, index - 1)
+		composer.addPass(this.compressionPass2, index)
+	}
 
-    addToComposer(composer, index) {
-        composer.addPass(this.compressionPass, index - 1)
-        composer.addPass(this.compressionPass2, index)
-    }
-
-    removeFromComposer(composer) {
-        composer.removePass(this.compressionPass)
-        composer.removePass(this.compressionPass2)
-    }
+	removeFromComposer(composer) {
+		composer.removePass(this.compressionPass)
+		composer.removePass(this.compressionPass2)
+	}
 }

@@ -10,9 +10,12 @@ export default {
 	plugins: [glsl.default(), viteCompression({ algorithm: "brotliCompress" })],
 	resolve: {
 		alias: [
-			{ find: "enhance-shader-lighting", replacement: "../src/index.js" },
+			{ find: "enhance-shader-lighting", replacement: "../dist/index.js" },
 			{ find: "three", replacement: dirName + "/node_modules/three" },
-			{ find: "postprocessing", replacement: dirName + "/node_modules/postprocessing" }
+			{
+				find: "postprocessing",
+				replacement: dirName + "/node_modules/postprocessing"
+			}
 		]
 	},
 	server: {

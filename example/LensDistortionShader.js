@@ -3,25 +3,21 @@ export const LensDistortionShader = {
 	useSrgbEncoding: false,
 
 	defines: {
-
 		// 0: NONE, 1: RGB, 2: RYGCBV
 		BAND_MODE: 2,
 
 		CHROMA_SAMPLES: 4
-
 	},
 
 	uniforms: {
-
 		tDiffuse: { value: null },
 		baseIor: { value: 0.95 },
 		bandOffset: { value: 0.001125 },
 		jitterIntensity: { value: 5 },
-		jitterOffset: { value: 0.0 },
-
+		jitterOffset: { value: 0.0 }
 	},
 
-	vertexShader: /* glsl */`
+	vertexShader: /* glsl */ `
 
 		varying vec2 vUv;
 		varying vec3 viewDir;
@@ -36,7 +32,7 @@ export const LensDistortionShader = {
 
 	`,
 
-	fragmentShader: /* glsl */`
+	fragmentShader: /* glsl */ `
 
 		varying vec2 vUv;
 		varying vec3 viewDir;
@@ -141,14 +137,13 @@ export const LensDistortionShader = {
 
 	`,
 	onBeforeCompile(shader, ...args) {
-		if (typeof super.onBeforeCompile === "function") super.onBeforeCompile(shader, ...args);
+		if (typeof super.onBeforeCompile === "function") super.onBeforeCompile(shader, ...args)
 
 		if (this.useSrgbEncoding === true) {
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"gl_FragColor = vec4( color, 1.0 );",
 				"gl_FragColor = LinearTosRGB(vec4( color, 1.0 ));"
-			);
+			)
 		}
 	}
-
-};
+}

@@ -20,9 +20,9 @@ npm i enhance-shader-lighting
 then use it in your project like so:
 
 ```javascript
-import { enhanceShaderLighting } from "enhance-shader-lighting";
+import { enhanceShaderLighting } from "enhance-shader-lighting"
 
-material.onBeforeCompile = (shader) => enhanceShaderLighting(shader, options);
+material.onBeforeCompile = shader => enhanceShaderLighting(shader, options)
 ```
 
 ## Parameters of `enhanceShaderLighting(shader, ?options)`
@@ -59,7 +59,7 @@ material.onBeforeCompile = (shader) => enhanceShaderLighting(shader, options);
 - `aoColor`: the color prevalent in darker areas (e.g. areas covered by shadows), it should be a blue-ish color or just black depending on the scene
 
 - `hemisphereColor`: the color that really dark spots converge too, in typical scenes with a sun and a blue sky darker spots tend to be more blue (since they are mainly affected by the blue sky and not by the sun), this rather subtle color describes what color these spots should fade to
--
+
 - `irradianceColor`: the average color of your scene, it simulates basically what color a light bounce has
 
 - `radianceColor`: the directly reflected sky color, it should be blue-ish similar to the sky
