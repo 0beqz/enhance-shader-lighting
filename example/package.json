@@ -42,7 +42,7 @@
 		"img-comparison-slider": "^7.4.3",
 		"realism-effects": "^1.0.18",
 		"stats.js": "^0.17.0",
-		"three": "^0.150.1",
+		"three": "^0.150.0",
 		"three-rt-helper": "^0.0.9",
 		"toastify-js": "^1.11.2",
 		"tweakpane": "^3.1.7"
