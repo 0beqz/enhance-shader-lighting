@@ -1,7 +1,7 @@
-﻿# enhanceShaderLighting - more realism in three.js
+# enhanceShaderLighting - more realism in three.js
 
-<img src="example/public/screenshots/gym.webp">
-<img src="example/public/screenshots/desert.webp">
+[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/gym.webp">](https://enhance-shader-lighting.vercel.app/)
+[<img src="https://raw.githubusercontent.com/0beqz/enhance-shader-lighting/main/example/public/screenshots/desert.webp">](https://enhance-shader-lighting.vercel.app/)
 <br/>
 
 ## Idea
