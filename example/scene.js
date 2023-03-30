@@ -907,7 +907,7 @@ export const initScene = name => {
 				Object.assign(bloomParams, origBloomParams)
 
 				// lightmaps are hue-corrected with "-7" to be less green and more red
-				loadLightmaps("avif")
+				loadLightmaps("png")
 
 				refreshDisplay()
 			}
